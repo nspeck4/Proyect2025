@@ -1,0 +1,10 @@
+Estado de Aprobación Actualizado
+
+La actividad {{ actividad.nombre }} ha sido {{ estado }}.
+
+{% if comentarios %}
+Comentarios:
+{{ comentarios }}
+{% endif %}
+
+Ver detalles: {{ dominio }}{% url 'actividad_detalle' actividad.id %}

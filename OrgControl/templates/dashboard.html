@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5>Mi Perfil</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ user.userprofile.profile_picture.url|default:'/static/default_profile.png' }}"
+                     class="rounded-circle mb-3" width="100">
+                <h5>{{ user.get_full_name }}</h5>
+                <p class="text-muted">{{ user.userprofile.department|default:"Sin departamento" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5>Mis Actividades Pendientes</h5>
+            </div>
+            <div class="card-body">
+                <!-- Lista de actividades -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Tarjetas de resumen -->
+        <div class="col-md-3">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h5>Planes Totales</h5>
+                    <h2>{{ total_planes }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h5>Planes Aprobados</h5>
+                    <h2>{{ planes_aprobados }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de estados -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Estado de Actividades</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="estadoChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de avance -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Avance por Nivel Organizacional</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nivel</th>
+                                <th>Avance Promedio</th>
+                                <th>Progreso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for nivel in avance_niveles %}
+                            <tr>
+                                <td>{{ nivel.plan__organization_level__name }}</td>
+                                <td>{{ nivel.promedio_avance|floatformat:1 }}%</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar"
+                                             style="width: {{ nivel.promedio_avance }}%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('estadoChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: [{% for e in actividades_estado %}'{{ e.estado }}',{% endfor %}],
+            datasets: [{
+                data: [{% for e in actividades_estado %}{{ e.total }},{% endfor %}],
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+                ]
+            }]
+        }
+    });
+</script>
+{% endblock %}

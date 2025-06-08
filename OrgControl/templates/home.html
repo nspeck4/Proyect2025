@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+from django.contrib.auth.decorators import login_required
+
+{% block content %}
+<h1>Bienvenido al Sistema de Gestión</h1>
+<div class="list-group">
+    <a href="/users/" class="list-group-item list-group-item-action">Gestión de Usuarios</a>
+    <a href="/organization/" class="list-group-item list-group-item-action">Estructura Organizacional</a>
+    <a href="/approval-flows/" class="list-group-item list-group-item-action">Flujos de Aprobación</a>
+</div>
+
+@login_required
+def home(request):
+    return render(request, 'home.html')
+
+{% endblock %}

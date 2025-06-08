@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header bg-warning text-dark">
+            <h3><i class="fas fa-check-circle me-2"></i> Aprobaciones Pendientes</h3>
+        </div>
+        <div class="card-body">
+            <table class="table datatable">
+                <thead>
+                    <tr>
+                        <th>Actividad</th>
+                        <th>Plan</th>
+                        <th>Responsable</th>
+                        <th>Fechas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aprobacion in aprobaciones %}
+                    <tr>
+                        <td>{{ aprobacion.actividad.nombre }}</td>
+                        <td>{{ aprobacion.actividad.plan }}</td>
+                        <td>{{ aprobacion.actividad.responsable.get_full_name }}</td>
+                        <td>
+                            {{ aprobacion.actividad.fecha_inicio|date:"d/m/Y" }} -
+                            {{ aprobacion.actividad.fecha_fin|date:"d/m/Y" }}
+                        </td>
+                        <td>
+                            <a href="{% url 'aprobar_actividad' aprobacion.pk %}"
+                               class="btn btn-sm btn-success" title="Revisar">
+                                <i class="fas fa-clipboard-check"></i> Revisar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No tienes aprobaciones pendientes</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

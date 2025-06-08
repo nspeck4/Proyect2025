@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Actualización de Aprobación</title>
+</head>
+<body>
+    <h2>Estado de Aprobación Actualizado</h2>
+    <p>La actividad <strong>{{ actividad.nombre }}</strong> ha sido <strong>{{ estado }}</strong>.</p>
+
+    {% if comentarios %}
+    <h3>Comentarios:</h3>
+    <p>{{ comentarios }}</p>
+    {% endif %}
+
+    <p>
+        <a href="{{ dominio }}{% url 'actividad_detalle' actividad.id %}">
+            Ver detalles de la actividad
+        </a>
+    </p>
+</body>
+</html>

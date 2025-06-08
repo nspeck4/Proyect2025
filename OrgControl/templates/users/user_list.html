@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3><i class="fas fa-users me-2"></i> Gestión de Usuarios</h3>
+                <a href="{% url 'user_create' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus me-1"></i> Nuevo Usuario
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table datatable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cargo</th>
+                        <th>Nivel Organizacional</th>
+                        <th>Supervisor</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.get_full_name }}</td>
+                        <td>{{ user.get_position_display }}</td>
+                        <td>{{ user.organization_level|default:"-" }}</td>
+                        <td>{{ user.boss.get_full_name|default:"-" }}</td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'user_update' user.pk %}" class="btn btn-primary" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'user_profile' user.pk %}" class="btn btn-info" title="Perfil">
+                                    <i class="fas fa-user"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

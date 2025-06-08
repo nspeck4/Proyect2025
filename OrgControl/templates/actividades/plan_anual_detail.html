@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3>Plan Anual {{ plan.year }} - {{ plan.organization_level }}</h3>
+                <div>
+                    <a href="{% url 'generar_reporte_pdf' plan.pk %}" class="btn btn-light btn-sm me-2">
+                        <i class="fas fa-file-pdf me-1"></i> PDF
+                    </a>
+                    <a href="{% url 'generar_reporte_excel' plan.pk %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-file-excel me-1"></i> Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-tabs" id="planTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="actividades-tab" data-bs-toggle="tab" data-bs-target="#actividades" type="button">
+                        <i class="fas fa-tasks me-1"></i> Actividades
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="estadisticas-tab" data-bs-toggle="tab" data-bs-target="#estadisticas" type="button">
+                        <i class="fas fa-chart-bar me-1"></i> Estadísticas
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-3" id="planTabsContent">
+                <div class="tab-pane fade show active" id="actividades" role="tabpanel">
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="{% url 'actividad_create' plan.pk %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i> Nueva Actividad
+                        </a>
+                    </div>
+
+                    <table class="table datatable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Responsable</th>
+                                <th>Fechas</th>
+                                <th>Estado</th>
+                                <th>Avance</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for actividad in plan.actividades.all %}
+                            <tr>
+                                <td>{{ actividad.nombre }}</td>
+                                <td>{{ actividad.responsable.get_full_name }}</td>
+                                <td>{{ actividad.fecha_inicio|date:"d/m/Y" }} - {{ actividad.fecha_fin|date:"d/m/Y" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if actividad.estado == 'A' %}success{% elif actividad.estado == 'R' %}danger{% else %}warning{% endif %}">
+                                        {{ actividad.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: {{ actividad.avance }}%"
+                                             aria-valuenow="{{ actividad.avance }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                            {{ actividad.avance }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="#" class="btn btn-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-info" title="Aprobaciones">
+                                            <i class="fas fa-check-double"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="estadisticas" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5>Estado de Actividades</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="estadoChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Avance por Mes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="avanceChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Gráfico de estados
+    const estadoCtx = document.getElementById('estadoChart').getContext('2d');
+    new Chart(estadoCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Pendientes', 'Aprobadas', 'Rechazadas', 'En progreso'],
+            datasets: [{
+                data: [
+                    {{ plan.actividades.filter(estado='P').count }},
+                    {{ plan.actividades.filter(estado='A').count }},
+                    {{ plan.actividades.filter(estado='R').count }},
+                    {{ plan.actividades.filter(estado='E').count }}
+                ],
+                backgroundColor: [
+                    '#FFC107', '#28A745', '#DC3545', '#17A2B8'
+                ]
+            }]
+        }
+    });
+
+    // Gráfico de avance por mes (ejemplo)
+    const avanceCtx = document.getElementById('avanceChart').getContext('2d');
+    new Chart(avanceCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Avance %',
+                data: [10, 25, 35, 50, 70, 85],
+                backgroundColor: '#007BFF'
+            }]
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}
